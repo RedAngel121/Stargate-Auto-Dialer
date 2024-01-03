@@ -1,0 +1,89 @@
+-- Place this entire code in startup.lua in the Advanced Computer.
+-- For block placement and how to use this script please watch this Video by Povstalec (the mod author)
+-- https://www.youtube.com/watch?v=qNi9NUAmOJM
+-- To navigate the menu please use W/S or the UP/DOWN arrows, Make your Selection using Enter.
+
+-- =================================================================================
+-- These are the names and addresses of the gates you find/place.
+-- You must have at least one gate added to this list for the script to function.
+-- Will accept any Cartuche and Gate address as long as it's valid.
+-- ALWAYS end an address with a Zero, as shown below. Failure to do so means the gate will not dial anything.
+local gateAddress = {
+    { locName = "My House", address = {27,9,19,6,35,32,2,10,0}},
+    { locName = "Abydos", address = {26,6,14,31,11,29,0}},
+    { locName = "Chulak", address = {8,1,22,14,36,19,0}},
+    { locName = "Moon Gate", address = {26,32,11,21,13,34,35,4,0}},
+    { locName = "Mars Gate", address = {24,1,20,8,26,6,25,33,0}}
+}
+-- =================================================================================
+
+local w,h = term.getSize()
+local nOption = 1
+
+function dial(address)
+    printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
+    printCenter(math.floor(h/2)-1, "Please Wait...")
+    local start = interface.getChevronsEngaged() + 1
+    local prevSymbol = 0
+    for chevron = start,#address.address,1 do
+        local symbol = address.address[chevron]
+        if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
+            interface.rotateClockwise(symbol)
+        else
+            interface.rotateAntiClockwise(symbol)
+        end
+        while(not interface.isCurrentSymbol(symbol))
+        do
+            sleep(0)
+        end
+        sleep(0.3)
+        interface.raiseChevron()
+        sleep(0.5)
+        interface.lowerChevron()
+        sleep(0.5)
+        prevSymbol = symbol
+    end
+    printCenter(math.floor(h/2)-1, "Dialing Complete")
+    sleep(3)
+    os.reboot()
+end
+
+function printCenter (y,s)
+    local x = math.floor((w - string.len(s))/2)
+    term.setCursorPos(x,y)
+    term.clearLine()
+    term.write(s)
+end
+
+local function drawFrontEnd()
+    curs = -6
+    printCenter(math.floor(h/2)-8, "Select a Destination:")
+    for i,t in ipairs(gateAddress) do
+        printCenter(math.floor(h/2)+curs, ((nOption == i)  and "[> - " .. t.locName .. " - <]") or t.locName)
+        curs = curs + 1
+    end
+end
+
+term.clear()
+interface = peripheral.find("basic_interface")
+drawFrontEnd()
+
+while true do
+    local e,p = os.pullEvent("key")
+    if p == keys.up or p == keys.w or p == keys.numPad8 then
+        if nOption > 1 then
+            nOption = nOption - 1
+            drawFrontEnd()
+        end
+    elseif p == keys.down or p == keys.s or p == keys.numPad2 then
+        if nOption < (#gateAddress) then
+            nOption = nOption + 1
+            drawFrontEnd()
+        end
+    elseif p == keys.enter or p == keys.numPadEnter then
+        term.clear()
+        term.setCursorPos(1,1)
+        dial(gateAddress[nOption])
+        break
+    end
+end
