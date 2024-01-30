@@ -7,6 +7,7 @@
 -- These are the names and addresses of the gates you find/place.
 -- You must have at least one gate added to this list for the script to function.
 -- Will accept any Cartuche and Gate address as long as it's valid.
+-- Currently only supports up to 16 locations at a time
 -- ALWAYS end an address with a Zero, as shown below. Failure to do so means the gate will not dial anything.
 local gateAddress = {
     { locName = "My House", address = {27,9,19,6,35,32,2,10,0}},
