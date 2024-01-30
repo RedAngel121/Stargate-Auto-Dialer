@@ -37,9 +37,9 @@ function dial(address)
             sleep(0)
         end
         sleep(0.3)
-        interface.raiseChevron()
+        interface.openChevron()
         sleep(0.5)
-        interface.lowerChevron()
+        interface.closeChevron()
         sleep(0.5)
         prevSymbol = symbol
     end
