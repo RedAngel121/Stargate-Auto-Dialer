@@ -106,7 +106,7 @@ end
 
 
 term.clear()
-interface = peripheral.find("basic_interface")
+interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
 drawFrontEnd()
 
 while true do
