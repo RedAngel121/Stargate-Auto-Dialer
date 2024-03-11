@@ -2,7 +2,6 @@
 -- For block placement and how to use this script please watch this Video by Povstalec (the mod author)
 -- https://www.youtube.com/watch?v=qNi9NUAmOJM
 -- To navigate the menu please use W/S or the UP/DOWN arrows, Make your Selection using Enter.
-
 -- =================================================================================
 -- These are the names and addresses of the gates you find/place.
 -- You must have at least one gate added to this list for the script to function.
@@ -16,6 +15,10 @@ local gateAddress = {
     { locName = "Moon Gate", address = {26,32,11,21,13,34,35,0}},
     { locName = "Mars Gate", address = {24,1,20,8,26,25,33,0}}
 }
+
+-- =================================================================================
+-- I am working on converting gateAddress to an external JSON file instead of an internal array
+-- In doing that I will eventually be able to add Editing tools to this script for ease of use
 -- =================================================================================
 
 local w,h = term.getSize()
