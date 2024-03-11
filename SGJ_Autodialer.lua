@@ -7,14 +7,10 @@
 -- You must have at least one gate added to this list for the script to function.
 -- Will accept any Cartuche and Gate address as long as it's valid.
 -- ALWAYS end an address with a Zero, as shown below. Failure to do so means the gate will not dial anything.
+-- I am going to fix the No Zero problem too
 
-local gateAddress = {
-    { locName = "My House", address = {27,9,19,35,32,2,10,0}},
-    { locName = "Abydos", address = {2,6,14,31,11,29,0}},
-    { locName = "Chulak", address = {9,1,2,14,36,19,0}},
-    { locName = "Moon Gate", address = {26,32,11,21,13,34,35,0}},
-    { locName = "Mars Gate", address = {24,1,20,8,26,25,33,0}}
-}
+local gateAddress = require("AddressList")
+
 
 -- =================================================================================
 -- I am working on converting gateAddress to an external JSON file instead of an internal array
