@@ -8,7 +8,6 @@
 -- Will accept any Cartuche and Gate address as long as it's valid.
 -- ALWAYS end an address with a Zero, as shown below. Failure to do so means the gate will not dial anything.
 -- I am going to fix the No Zero problem too
-
 local gateAddress = require("AddressList")
 
 
