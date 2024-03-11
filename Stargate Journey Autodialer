@@ -10,11 +10,11 @@
 -- ALWAYS end an address with a Zero, as shown below. Failure to do so means the gate will not dial anything.
 
 local gateAddress = {
-    { locName = "My House", address = {27,9,19,6,35,32,2,10,0}},
-    { locName = "Abydos", address = {25,6,14,31,11,29,0}},
-    { locName = "Chulak", address = {9,1,22,14,36,19,0}},
-    { locName = "Moon Gate", address = {26,32,11,21,13,34,35,4,0}},
-    { locName = "Mars Gate", address = {24,1,20,8,26,6,25,33,0}}
+    { locName = "My House", address = {27,9,19,35,32,2,10,0}},
+    { locName = "Abydos", address = {2,6,14,31,11,29,0}},
+    { locName = "Chulak", address = {9,1,2,14,36,19,0}},
+    { locName = "Moon Gate", address = {26,32,11,21,13,34,35,0}},
+    { locName = "Mars Gate", address = {24,1,20,8,26,25,33,0}}
 }
 -- =================================================================================
 
@@ -67,7 +67,7 @@ local function drawFrontEnd()
             printCenter(math.floor(h/2)+curs, ((nOption == i)  and "[> - " .. t.locName .. " - <]") or t.locName)
             curs = curs + 1
         end
-    elseif #gateAddress > 9 and nOption < 5 then
+    elseif nOption < 5 then
         printCenter(math.floor(h/2)-3, ((nOption == 1)  and "[> - " .. gateAddress[1].locName .. " - <]") or gateAddress[1].locName)
         printCenter(math.floor(h/2)-2, ((nOption == 2)  and "[> - " .. gateAddress[2].locName .. " - <]") or gateAddress[2].locName)
         printCenter(math.floor(h/2)-1, ((nOption == 3)  and "[> - " .. gateAddress[3].locName .. " - <]") or gateAddress[3].locName)
@@ -78,7 +78,7 @@ local function drawFrontEnd()
         printCenter(math.floor(h/2)+4, gateAddress[8].locName)
         printCenter(math.floor(h/2)+5, gateAddress[9].locName)
         printCenter(math.floor(h/2)+6, "=== v ===")
-    elseif #gateAddress > 9 and nOption > 4 and nOption < #gateAddress - 3 then
+    elseif nOption > 5 and nOption < #gateAddress - 4 then
         printCenter(math.floor(h/2)-4, "=== ^ ===")
         printCenter(math.floor(h/2)-3,(gateAddress[nOption-4]).locName)
         printCenter(math.floor(h/2)-2,(gateAddress[nOption-3]).locName)
