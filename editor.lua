@@ -70,6 +70,7 @@ local function removeItem(index)
     shell.run("dialer")
 end
 
+-- Function to edit an existing item on the Address List
 local function editLocationDetails()
     loadItemList()
     term.clear()
@@ -101,6 +102,7 @@ local function editLocationDetails()
     shell.run("dialer")
 end
 
+-- Function that prints to the center of the terminal
 function printCenter (y,s)
     local x = math.floor((w - string.len(s))/2)
     term.setCursorPos(x,y)
@@ -108,6 +110,7 @@ function printCenter (y,s)
     term.write(s)
 end
 
+-- Local Menu derived from AddressList.lua
 local function drawFrontEnd()
     curs = -3
     x = 1
