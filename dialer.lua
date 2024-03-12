@@ -6,6 +6,8 @@ local gateAddress = require("AddressList")
 local w,h = term.getSize()
 local nOption = 1
 
+-- Auto-Dialing function based on next closest chevron (Milky Way Gate)
+-- Additional Gates are not yet supported...
 function dial(address)
     printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
     printCenter(math.floor(h/2)-1, "Please Wait...")
