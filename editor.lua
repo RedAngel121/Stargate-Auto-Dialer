@@ -1,32 +1,6 @@
-local gateAddress = require("AddressList")
+require("dialer")
 local w,h = term.getSize()
 local nOption = 1
-
--- Function to save the Address List to AddressList.lua
-function saveItemList()
-    local file = io.open("AddressList.lua", "w")
-    if file then
-        file:write("return {\n")
-        for _, item in ipairs(itemList) do
-            file:write(string.format("\t{locName=\"%s\", address={%s}},\n", item.locName, table.concat(item.address, ",")))
-        end
-        file:write("}\n")
-        file:close()
-    end
-end
-
--- Function to load the Address List from AddressList.lua
-function loadItemList()
-    local file = io.open("AddressList.lua", "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        local success, loadedItemList = pcall(load(content))
-        if success and type(loadedItemList) == "table" then
-            itemList = loadedItemList
-        end
-    end
-end
 
 -- Function to add a new item to the Address List
 function addNewLocation()
@@ -60,6 +34,9 @@ function removeItem(index)
     if itemList[index] then
         table.remove(itemList, index)
         saveItemList()
+    end
+    if nOption >= #itemList then
+        nOption = #itemList
     end
     drawFrontEnd()
 end
@@ -178,13 +155,14 @@ drawFrontEnd()
 while true do
     local event, key = os.pullEvent()
     if event == "key" then
+        loadItemList()
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
                 nOption = nOption - 1
                 drawFrontEnd()
             end
         elseif key == keys.down or key == keys.s or key == keys.numPad2 then
-            if nOption < #gateAddress then
+            if nOption < #itemList then
                 nOption = nOption + 1
                 drawFrontEnd()
             end
@@ -206,17 +184,18 @@ while true do
             nOption = 1
             drawFrontEnd()
         elseif key == keys['end'] then
-            nOption = #gateAddress
+            nOption = #itemList
             drawFrontEnd()
         end
     elseif event == "mouse_scroll" then
+        loadItemList()
         if key == -1 then -- Scroll up
             if nOption > 1 then
                 nOption = nOption - 1
                 drawFrontEnd()
             end
         elseif key == 1 then -- Scroll down
-            if nOption < #gateAddress then
+            if nOption < #itemList then
                 nOption = nOption + 1
                 drawFrontEnd()
             end
