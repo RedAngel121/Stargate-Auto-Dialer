@@ -45,11 +45,13 @@ local function drawFrontEnd()
     curs = -3
     x = 1
     term.clear()
+    term.setTextColor(colors.green)
     printCenter(math.floor(h/2)-7, "Select a Destination:")
     printCenter(math.floor(h/2)-6, "Press Enter to Dial")
     if fs.exists("editor.lua") then
         printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
     end
+    term.setTextColor(colors.white)
     local function drawOption(index)
         return ((nOption == index) and "\16 " .. gateAddress[index].locName .. " \17") or gateAddress[index].locName
     end
