@@ -6,6 +6,22 @@ local gateAddress = require("AddressList")
 local w,h = term.getSize()
 local nOption = 1
 
+function loadItemList()
+    local file = io.open("AddressList.lua", "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local success, loadedItemList = pcall(load(content))
+        if success and type(loadedItemList) == "table" then
+            itemList = loadedItemList
+        else
+            print("FILE LOAD FAILED")
+        end
+    else
+        print("UNABLE TO OPEN FILE")
+    end
+end
+
 function dial(address)
     printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
     printCenter(math.floor(h/2)-1, "Please Wait...")
@@ -38,10 +54,8 @@ function printCenter (y,s)
     term.write(s)
 end
 
-local function drawFrontEnd()
+function drawFrontEnd()
     loadItemList()
-    curs = -3
-    x = 1
     term.clear()
     term.setTextColor(colors.green)
     printCenter(math.floor(h/2)-7, "Select a Destination:")
@@ -83,7 +97,6 @@ local function drawFrontEnd()
         end
     end
 end
-
 
 term.clear()
 interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
