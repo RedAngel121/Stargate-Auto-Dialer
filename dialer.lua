@@ -2,21 +2,9 @@
 -- https://www.youtube.com/watch?v=qNi9NUAmOJM
 -- To navigate the menu please use W/S or the UP/DOWN arrows, Make your Selection using Enter.
 
-local gateAddress = require("AddressList")
+require("sal")
 local w,h = term.getSize()
 local nOption = 1
-
-function loadItemList()
-    local file = io.open("AddressList.lua", "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        local success, loadedItemList = pcall(load(content))
-        if success and type(loadedItemList) == "table" then
-            itemList = loadedItemList
-        end
-    end
-end
 
 function dial(address)
     printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
@@ -101,19 +89,21 @@ drawFrontEnd()
 while true do
     local event, key = os.pullEvent()
     if event == "key" then
+        loadItemList()
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
                 nOption = nOption - 1
                 drawFrontEnd()
             end
         elseif key == keys.down or key == keys.s or key == keys.numPad2 then
-            if nOption < #gateAddress then
+            if nOption < #itemList then
                 nOption = nOption + 1
                 drawFrontEnd()
             end
         elseif key == keys.enter or key == keys.numPadEnter then
             term.clear()
-            dial(gateAddress[nOption])
+            loadItemList()
+            dial(itemList[nOption])
             break
         elseif fs.exists("editor.lua") and (key == keys.d or key == keys.right or key == keys.numPad4) then
             shell.run("editor")
@@ -123,17 +113,18 @@ while true do
             nOption = 1
             drawFrontEnd()
         elseif key == keys['end'] then
-            nOption = #gateAddress
+            nOption = #itemList
             drawFrontEnd()
         end
     elseif event == "mouse_scroll" then
+        loadItemList()
         if key == -1 then -- Scroll up
             if nOption > 1 then
                 nOption = nOption - 1
                 drawFrontEnd()
             end
         elseif key == 1 then -- Scroll down
-            if nOption < #gateAddress then
+            if nOption < #itemList then
                 nOption = nOption + 1
                 drawFrontEnd()
             end
