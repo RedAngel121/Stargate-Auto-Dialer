@@ -6,8 +6,6 @@ local gateAddress = require("AddressList")
 local w,h = term.getSize()
 local nOption = 1
 
--- Auto-Dialing function based on next closest chevron (Milky Way Gate)
--- Additional Gates are not yet supported...
 function dial(address)
     printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
     printCenter(math.floor(h/2)-1, "Please Wait...")
@@ -47,7 +45,8 @@ local function drawFrontEnd()
     curs = -3
     x = 1
     term.clear()
-    printCenter(math.floor(h/2)-7, "Select a Destination to Dial:")
+    printCenter(math.floor(h/2)-7, "Select a Destination:")
+    printCenter(math.floor(h/2)-6, "Press Enter to Dial")
     printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
 
     local function drawOption(index)
@@ -108,5 +107,11 @@ while true do
         shell.run("editor")
     elseif p == keys.a or p == keys.left or p == keys.numPad6 then
         shell.run("editor")
+    elseif p == keys.home then
+        nOption = 1
+        drawFrontEnd()
+    elseif p == keys['end'] then
+        nOption = #gateAddress
+        drawFrontEnd()
     end
 end
