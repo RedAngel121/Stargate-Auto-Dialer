@@ -141,7 +141,7 @@ function drawFrontEnd()
     term.setCursorPos(1, 1)
     printCenter(math.floor(h/2) - 7, "Select a Destination to Edit:")
     printCenter(math.floor(h/2) - 6, "Press Delete to Remove or PGUP to Move")
-    printCenter(math.floor(h/2) + 8, "Press Insert to Add  or PGDN to Move")
+    printCenter(math.floor(h/2) + 8, "Press Insert to Add or PGDN to Move")
     printCenter(math.floor(h/2) + 9, "Move \17 or \16 to DIAL")
 
     local function drawOption(index)
