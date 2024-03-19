@@ -14,11 +14,7 @@ function loadItemList()
         local success, loadedItemList = pcall(load(content))
         if success and type(loadedItemList) == "table" then
             itemList = loadedItemList
-        else
-            print("FILE LOAD FAILED")
         end
-    else
-        print("UNABLE TO OPEN FILE")
     end
 end
 
