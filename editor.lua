@@ -3,7 +3,7 @@ local w,h = term.getSize()
 local nOption = 1
 
 -- Function to save the Address List to AddressList.lua
-local function saveItemList()
+function saveItemList()
     local file = io.open("AddressList.lua", "w")
     if file then
         file:write("return {\n")
@@ -18,7 +18,7 @@ local function saveItemList()
 end
 
 -- Function to load the Address List from AddressList.lua
-local function loadItemList()
+function loadItemList()
     local file = io.open("AddressList.lua", "r")
     if file then
         local content = file:read("*all")
@@ -35,7 +35,7 @@ local function loadItemList()
 end
 
 -- Function to add a new item to the Address List
-local function addNewLocation()
+function addNewLocation()
     os.sleep(0.1)
     loadItemList()
     term.clear()
@@ -61,7 +61,7 @@ local function addNewLocation()
 end
 
 -- Function to remove an item from the Address List
-local function removeItem(index)
+function removeItem(index)
     loadItemList()
     if itemList[index] then
         table.remove(itemList, index)
@@ -71,7 +71,7 @@ local function removeItem(index)
 end
 
 -- Function to edit an existing item on the Address List
-local function editLocationDetails()
+function editLocationDetails()
     loadItemList()
     term.clear()
     term.setCursorPos(1,1)
@@ -102,7 +102,31 @@ local function editLocationDetails()
     shell.run("dialer")
 end
 
--- Function that prints to the center of the terminal
+-- Function to move an item up in the Address List
+function moveItemUp(index)
+    loadItemList()
+    if index > 1 then
+        -- Swap the item with the one above it
+        itemList[index], itemList[index - 1] = itemList[index - 1], itemList[index]
+        saveItemList()
+        nOption = nOption - 1
+    end
+    drawFrontEnd()
+end
+
+-- Function to move an item down in the Address List
+function moveItemDown(index)
+    loadItemList()
+    if index < #itemList then
+        -- Swap the item with the one below it
+        itemList[index], itemList[index + 1] = itemList[index + 1], itemList[index]
+        saveItemList()
+        nOption = nOption + 1
+    end
+    drawFrontEnd()
+end
+
+-- Function to set the text to Print Center
 function printCenter (y,s)
     local x = math.floor((w - string.len(s))/2)
     term.setCursorPos(x,y)
@@ -110,47 +134,49 @@ function printCenter (y,s)
     term.write(s)
 end
 
--- Local Menu derived from AddressList.lua
-local function drawFrontEnd()
-    curs = -3
-    x = 1
+-- Function that displays the Menu
+function drawFrontEnd()
+    loadItemList()
     term.clear()
-    printCenter(math.floor(h/2)-7, "Select a Destination to Edit:")
-    printCenter(math.floor(h/2)-6, "Press Delete to Remove")
-    printCenter(math.floor(h/2)+8, "Press Spacebar to Add")
-    printCenter(math.floor(h/2)+9, "Move \17 or \16 to DIAL")
+    term.setCursorPos(1, 1)
+    printCenter(math.floor(h/2) - 7, "Select a Destination to Edit:")
+    printCenter(math.floor(h/2) - 6, "Press Delete to Remove or PGUP to move")
+    printCenter(math.floor(h/2) + 8, "Press Spacebar to Add  or PGDN to move")
+    printCenter(math.floor(h/2) + 9, "Move \17 or \16 to DIAL")
 
     local function drawOption(index)
-        return ((nOption == index) and "\16 " .. gateAddress[index].locName .. " \17") or gateAddress[index].locName
+        return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
     end
 
-    if #gateAddress < 10 then
-        for i, t in ipairs(gateAddress) do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+    local curs = -3
+    if #itemList < 10 then
+        for i, t in ipairs(itemList) do
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
     else
         local start, stop
         if nOption < 6 then
             start, stop = 1, 9
-        elseif nOption > 5 and nOption < #gateAddress - 4 then
+        elseif nOption > 5 and nOption < #itemList - 4 then
             start, stop = nOption - 4, nOption + 4
         else
-            start, stop = #gateAddress - 8, #gateAddress
+            start, stop = #itemList - 8, #itemList
         end
 
         for i = start, stop do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
 
-        if nOption < #gateAddress - 4 then
-            printCenter(math.floor(h/2)+curs, "=== \31 ===")
+        if nOption < #itemList - 4 then
+            printCenter(math.floor(h/2) + curs, "=== \31 ===")
         end
         if nOption > 5 then
-            printCenter(math.floor(h/2)-4, "=== \30 ===")
+            printCenter(math.floor(h/2) - 4, "=== \30 ===")
         end
     end
+
 end
 
 drawFrontEnd()
@@ -178,5 +204,9 @@ while true do
         shell.run("dialer")
     elseif p == keys.a or p == keys.left or p == keys.numPad6 then
         shell.run("dialer")
+    elseif p == keys.pageUp then
+        moveItemUp(nOption)
+    elseif p == keys.pageDown then
+        moveItemDown(nOption)
     end
 end
