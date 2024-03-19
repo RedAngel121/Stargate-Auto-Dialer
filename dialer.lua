@@ -99,30 +99,44 @@ interface = peripheral.find("basic_interface") or peripheral.find("crystal_inter
 drawFrontEnd()
 
 while true do
-    local e,p = os.pullEvent("key")
-    if p == keys.up or p == keys.w or p == keys.numPad8 then
-        if nOption > 1 then
-            nOption = nOption - 1
+    local event, key = os.pullEvent()
+    if event == "key" then
+        if key == keys.up or key == keys.w or key == keys.numPad8 then
+            if nOption > 1 then
+                nOption = nOption - 1
+                drawFrontEnd()
+            end
+        elseif key == keys.down or key == keys.s or key == keys.numPad2 then
+            if nOption < #gateAddress then
+                nOption = nOption + 1
+                drawFrontEnd()
+            end
+        elseif key == keys.enter or key == keys.numPadEnter then
+            term.clear()
+            dial(gateAddress[nOption])
+            break
+        elseif fs.exists("editor.lua") and (key == keys.d or key == keys.right or key == keys.numPad4) then
+            shell.run("editor")
+        elseif fs.exists("editor.lua") and (key == keys.a or key == keys.left or key == keys.numPad6) then
+            shell.run("editor")
+        elseif key == keys.home then
+            nOption = 1
+            drawFrontEnd()
+        elseif key == keys['end'] then
+            nOption = #gateAddress
             drawFrontEnd()
         end
-    elseif p == keys.down or p == keys.s or p == keys.numPad2 then
-        if nOption < (#gateAddress) then
-            nOption = nOption + 1
-            drawFrontEnd()
+    elseif event == "mouse_scroll" then
+        if key == -1 then -- Scroll up
+            if nOption > 1 then
+                nOption = nOption - 1
+                drawFrontEnd()
+            end
+        elseif key == 1 then -- Scroll down
+            if nOption < #gateAddress then
+                nOption = nOption + 1
+                drawFrontEnd()
+            end
         end
-    elseif p == keys.enter or p == keys.numPadEnter then
-        term.clear()
-        dial(gateAddress[nOption])
-        break
-    elseif fs.exists("editor.lua") and (p == keys.d or p == keys.right or p == keys.numPad4) then
-        shell.run("editor")
-    elseif fs.exists("editor.lua") and (p == keys.a or p == keys.left or p == keys.numPad6) then
-        shell.run("editor")
-    elseif p == keys.home then
-        nOption = 1
-        drawFrontEnd()
-    elseif p == keys['end'] then
-        nOption = #gateAddress
-        drawFrontEnd()
     end
 end
