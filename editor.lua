@@ -138,7 +138,6 @@ end
 function drawFrontEnd()
     loadItemList()
     term.clear()
-    term.setCursorPos(1, 1)
     term.setTextColor(colors.red)
     printCenter(math.floor(h/2) - 7, "Select a Destination to Edit:")
     printCenter(math.floor(h/2) - 6, "Press Delete to Remove or PGUP to Move")
@@ -146,7 +145,6 @@ function drawFrontEnd()
     printCenter(math.floor(h/2) + 9, "Press Enter to Edit Selected Item")
     printCenter(math.floor(h/2) + 10, "Move \17 or \16 to DIAL")
     term.setTextColor(colors.white)
-
     local function drawOption(index)
         return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
     end
