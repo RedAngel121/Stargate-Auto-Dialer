@@ -47,8 +47,9 @@ local function drawFrontEnd()
     term.clear()
     printCenter(math.floor(h/2)-7, "Select a Destination:")
     printCenter(math.floor(h/2)-6, "Press Enter to Dial")
-    printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
-
+    if fs.exists("editor.lua") then
+        printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
+    end
     local function drawOption(index)
         return ((nOption == index) and "\16 " .. gateAddress[index].locName .. " \17") or gateAddress[index].locName
     end
@@ -103,9 +104,9 @@ while true do
         term.clear()
         dial(gateAddress[nOption])
         break
-    elseif p == keys.d or p == keys.right or p == keys.numPad4 then
+    elseif fs.exists("editor.lua") and (p == keys.d or p == keys.right or p == keys.numPad4) then
         shell.run("editor")
-    elseif p == keys.a or p == keys.left or p == keys.numPad6 then
+    elseif fs.exists("editor.lua") and (p == keys.a or p == keys.left or p == keys.numPad6) then
         shell.run("editor")
     elseif p == keys.home then
         nOption = 1
