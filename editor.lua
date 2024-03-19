@@ -179,7 +179,6 @@ function drawFrontEnd()
             printCenter(math.floor(h/2) - 4, "=== \30 ===")
         end
     end
-
 end
 
 drawFrontEnd()
