@@ -86,10 +86,10 @@ function drawFrontEnd()
         end
 
         if nOption < #itemList - 4 then
-            printCenter(math.floor(h/2) + curs, "=== \31 ===")
+            printCenter(math.floor(h/2) + curs, "\131\131\131 \25 \131\131\131")
         end
         if nOption > 5 then
-            printCenter(math.floor(h/2) - 4, "=== \30 ===")
+            printCenter(math.floor(h/2) - 4, "\140\140\140 \24 \140\140\140")
         end
     end
 end
