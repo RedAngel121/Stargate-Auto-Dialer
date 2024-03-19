@@ -196,7 +196,6 @@ while true do
         end
     elseif p == keys.enter or p == keys.numPadEnter then
         editLocationDetails()
-        break
     elseif p == keys.insert then
         addNewLocation()
     elseif p == keys.delete then
