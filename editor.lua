@@ -57,7 +57,7 @@ function addNewLocation()
     end
     table.insert(itemList, {locName = newLocName, address = newAddress})
     saveItemList()
-    shell.run("dialer")
+    drawFrontEnd()
 end
 
 -- Function to remove an item from the Address List
@@ -67,7 +67,7 @@ function removeItem(index)
         table.remove(itemList, index)
         saveItemList()
     end
-    shell.run("dialer")
+    drawFrontEnd()
 end
 
 -- Function to edit an existing item on the Address List
@@ -99,7 +99,7 @@ function editLocationDetails()
     itemList[nOption].locName = newLocName
     itemList[nOption].address = newAddress
     saveItemList()
-    shell.run("dialer")
+    drawFrontEnd()
 end
 
 -- Function to move an item up in the Address List
@@ -142,7 +142,8 @@ function drawFrontEnd()
     printCenter(math.floor(h/2) - 7, "Select a Destination to Edit:")
     printCenter(math.floor(h/2) - 6, "Press Delete to Remove or PGUP to Move")
     printCenter(math.floor(h/2) + 8, "Press Insert to Add or PGDN to Move")
-    printCenter(math.floor(h/2) + 9, "Move \17 or \16 to DIAL")
+    printCenter(math.floor(h/2) + 9, "Press Enter to Edit Selected Item")
+    printCenter(math.floor(h/2) + 10, "Move \17 or \16 to DIAL")
 
     local function drawOption(index)
         return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
