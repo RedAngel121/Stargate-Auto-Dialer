@@ -1,7 +1,3 @@
--- For block placement and how to use this script please watch this Video by Povstalec (the mod author)
--- https://www.youtube.com/watch?v=qNi9NUAmOJM
--- To navigate the menu please use W/S or the UP/DOWN arrows, Make your Selection using Enter.
-
 require("sal")
 local w,h = term.getSize()
 local nOption = 1
@@ -42,10 +38,10 @@ function drawFrontEnd()
     loadItemList()
     term.clear()
     term.setTextColor(colors.green)
-    printCenter(math.floor(h/2)-7, "Select a Destination:")
-    printCenter(math.floor(h/2)-6, "Press Enter to Dial")
+    printCenter(math.floor(h/2)-7, "\24 or \25 to Select a Destination")
+    printCenter(math.floor(h/2)-6, "[Enter] to start Dialing")
     if fs.exists("editor.lua") then
-        printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
+        printCenter(math.floor(h/2)+9, "Move \27 or \26 to enter EDIT MODE")
     end
     term.setTextColor(colors.white)
     local function drawOption(index)
