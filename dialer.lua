@@ -39,6 +39,7 @@ function printCenter (y,s)
 end
 
 local function drawFrontEnd()
+    loadItemList()
     curs = -3
     x = 1
     term.clear()
