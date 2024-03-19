@@ -1,39 +1,132 @@
--- For block placement and how to use this script please watch this Video by Povstalec (the mod author)
--- https://www.youtube.com/watch?v=qNi9NUAmOJM
--- To navigate the menu please use W/S or the UP/DOWN arrows, Make your Selection using Enter.
-
 local gateAddress = require("AddressList")
 local w,h = term.getSize()
 local nOption = 1
 
-function dial(address)
-    printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
-    printCenter(math.floor(h/2)-1, "Please Wait...")
-    local start = interface.getChevronsEngaged() + 1
-    local prevSymbol = 0
-    for chevron = start,#address.address,1 do
-        local symbol = address.address[chevron]
-        if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
-            interface.rotateClockwise(symbol)
-        else
-            interface.rotateAntiClockwise(symbol)
+-- Function to save the Address List to AddressList.lua
+function saveItemList()
+    local file = io.open("AddressList.lua", "w")
+    if file then
+        file:write("return {\n")
+        for _, item in ipairs(itemList) do
+            file:write(string.format("\t{locName=\"%s\", address={%s}},\n", item.locName, table.concat(item.address, ",")))
         end
-        while(not interface.isCurrentSymbol(symbol))
-        do
-            sleep(0)
-        end
-        sleep(0.3)
-        interface.openChevron()
-        sleep(0.5)
-        interface.closeChevron()
-        sleep(0.5)
-        prevSymbol = symbol
+        file:write("}\n")
+        file:close()
+    else
+        print("FILE SAVE FAILED")
     end
-    printCenter(math.floor(h/2)-1, "Dialing Complete")
-    sleep(3)
-    os.reboot()
 end
 
+-- Function to load the Address List from AddressList.lua
+function loadItemList()
+    local file = io.open("AddressList.lua", "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local success, loadedItemList = pcall(load(content))
+        if success and type(loadedItemList) == "table" then
+            itemList = loadedItemList
+        else
+            print("FILE LOAD FAILED")
+        end
+    else
+        print("UNABLE TO OPEN FILE")
+    end
+end
+
+-- Function to add a new item to the Address List
+function addNewLocation()
+    os.sleep(0.1)
+    loadItemList()
+    term.clear()
+    term.setCursorPos(1,1)
+    io.write("Enter Gate Name: ")
+    local newLocName = io.read()
+    io.write("Enter Gate Address (CSV): ")
+    local newAddressInput = io.read()
+    local newAddress = {}
+    if newAddressInput ~= "" then
+        for num in newAddressInput:gmatch("%d+") do
+            table.insert(newAddress, tonumber(num))
+        end
+        if newAddress[#newAddress] ~= 0 then
+            table.insert(newAddress, 0)
+        end
+    else
+        newAddress = {0}
+    end
+    table.insert(itemList, {locName = newLocName, address = newAddress})
+    saveItemList()
+    drawFrontEnd()
+end
+
+-- Function to remove an item from the Address List
+function removeItem(index)
+    loadItemList()
+    if itemList[index] then
+        table.remove(itemList, index)
+        saveItemList()
+    end
+    drawFrontEnd()
+end
+
+-- Function to edit an existing item on the Address List
+function editLocationDetails()
+    loadItemList()
+    term.clear()
+    term.setCursorPos(1,1)
+    local selectedLocation = itemList[nOption]
+    print("Current Name: " .. selectedLocation.locName)
+    print("Current Address: {" .. table.concat(selectedLocation.address, ",") .. "}\n")
+    io.write("Enter new Gate Name (Press Enter to keep current): ")
+    local newLocName = io.read()
+    if newLocName == "" then
+        newLocName = selectedLocation.locName
+    end
+    io.write("Enter new Gate Address (CSV / Press Enter to keep current): ")
+    local newAddressInput = io.read()
+    local newAddress = {}
+    if newAddressInput ~= "" then
+        for num in newAddressInput:gmatch("%d+") do
+            table.insert(newAddress, tonumber(num))
+        end
+        if newAddress[#newAddress] ~= 0 then
+            table.insert(newAddress, 0)
+        end
+    else
+        newAddress = selectedLocation.address
+    end
+    itemList[nOption].locName = newLocName
+    itemList[nOption].address = newAddress
+    saveItemList()
+    drawFrontEnd()
+end
+
+-- Function to move an item up in the Address List
+function moveItemUp(index)
+    loadItemList()
+    if index > 1 then
+        -- Swap the item with the one above it
+        itemList[index], itemList[index - 1] = itemList[index - 1], itemList[index]
+        saveItemList()
+        nOption = nOption - 1
+    end
+    drawFrontEnd()
+end
+
+-- Function to move an item down in the Address List
+function moveItemDown(index)
+    loadItemList()
+    if index < #itemList then
+        -- Swap the item with the one below it
+        itemList[index], itemList[index + 1] = itemList[index + 1], itemList[index]
+        saveItemList()
+        nOption = nOption + 1
+    end
+    drawFrontEnd()
+end
+
+-- Function to set the text to Print Center
 function printCenter (y,s)
     local x = math.floor((w - string.len(s))/2)
     term.setCursorPos(x,y)
@@ -41,53 +134,54 @@ function printCenter (y,s)
     term.write(s)
 end
 
-local function drawFrontEnd()
-    curs = -3
-    x = 1
+-- Function that displays the Menu
+function drawFrontEnd()
+    loadItemList()
     term.clear()
-    term.setTextColor(colors.green)
-    printCenter(math.floor(h/2)-7, "Select a Destination:")
-    printCenter(math.floor(h/2)-6, "Press Enter to Dial")
-    if fs.exists("editor.lua") then
-        printCenter(math.floor(h/2)+9, "Move \17 or \16 to EDIT")
-    end
+    term.setCursorPos(1, 1)
+    term.setTextColor(colors.red)
+    printCenter(math.floor(h/2) - 7, "Select a Destination to Edit:")
+    printCenter(math.floor(h/2) - 6, "Press Delete to Remove or PGUP to Move")
+    printCenter(math.floor(h/2) + 8, "Press Insert to Add or PGDN to Move")
+    printCenter(math.floor(h/2) + 9, "Press Enter to Edit Selected Item")
+    printCenter(math.floor(h/2) + 10, "Move \17 or \16 to DIAL")
     term.setTextColor(colors.white)
+
     local function drawOption(index)
-        return ((nOption == index) and "\16 " .. gateAddress[index].locName .. " \17") or gateAddress[index].locName
+        return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
     end
 
-    if #gateAddress < 10 then
-        for i, t in ipairs(gateAddress) do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+    local curs = -3
+    if #itemList < 10 then
+        for i, t in ipairs(itemList) do
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
     else
         local start, stop
         if nOption < 6 then
             start, stop = 1, 9
-        elseif nOption > 5 and nOption < #gateAddress - 4 then
+        elseif nOption > 5 and nOption < #itemList - 4 then
             start, stop = nOption - 4, nOption + 4
         else
-            start, stop = #gateAddress - 8, #gateAddress
+            start, stop = #itemList - 8, #itemList
         end
 
         for i = start, stop do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
 
-        if nOption < #gateAddress - 4 then
-            printCenter(math.floor(h/2)+curs, "=== \31 ===")
+        if nOption < #itemList - 4 then
+            printCenter(math.floor(h/2) + curs, "=== \31 ===")
         end
         if nOption > 5 then
-            printCenter(math.floor(h/2)-4, "=== \30 ===")
+            printCenter(math.floor(h/2) - 4, "=== \30 ===")
         end
     end
+
 end
 
-
-term.clear()
-interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
 drawFrontEnd()
 
 while true do
@@ -103,13 +197,19 @@ while true do
             drawFrontEnd()
         end
     elseif p == keys.enter or p == keys.numPadEnter then
-        term.clear()
-        dial(gateAddress[nOption])
-        break
-    elseif fs.exists("editor.lua") and (p == keys.d or p == keys.right or p == keys.numPad4) then
-        shell.run("editor")
-    elseif fs.exists("editor.lua") and (p == keys.a or p == keys.left or p == keys.numPad6) then
-        shell.run("editor")
+        editLocationDetails()
+    elseif p == keys.insert then
+        addNewLocation()
+    elseif p == keys.delete then
+        removeItem(nOption)
+    elseif p == keys.d or p == keys.right or p == keys.numPad4 then
+        shell.run("dialer")
+    elseif p == keys.a or p == keys.left or p == keys.numPad6 then
+        shell.run("dialer")
+    elseif p == keys.pageUp then
+        moveItemUp(nOption)
+    elseif p == keys.pageDown then
+        moveItemDown(nOption)
     elseif p == keys.home then
         nOption = 1
         drawFrontEnd()
