@@ -18,10 +18,7 @@ function dial(address)
         else
             interface.rotateAntiClockwise(symbol)
         end
-        while(not interface.isCurrentSymbol(symbol))
-        do
-            sleep(0)
-        end
+        while(not interface.isCurrentSymbol(symbol)) do sleep(0) end
         sleep(0.3)
         interface.openChevron()
         sleep(0.5)
@@ -53,34 +50,35 @@ local function drawFrontEnd()
     end
     term.setTextColor(colors.white)
     local function drawOption(index)
-        return ((nOption == index) and "\16 " .. gateAddress[index].locName .. " \17") or gateAddress[index].locName
+        return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
     end
 
-    if #gateAddress < 10 then
-        for i, t in ipairs(gateAddress) do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+    local curs = -3
+    if #itemList < 10 then
+        for i, t in ipairs(itemList) do
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
     else
         local start, stop
         if nOption < 6 then
             start, stop = 1, 9
-        elseif nOption > 5 and nOption < #gateAddress - 4 then
+        elseif nOption > 5 and nOption < #itemList - 4 then
             start, stop = nOption - 4, nOption + 4
         else
-            start, stop = #gateAddress - 8, #gateAddress
+            start, stop = #itemList - 8, #itemList
         end
 
         for i = start, stop do
-            printCenter(math.floor(h/2)+curs, drawOption(i))
+            printCenter(math.floor(h/2) + curs, drawOption(i))
             curs = curs + 1
         end
 
-        if nOption < #gateAddress - 4 then
-            printCenter(math.floor(h/2)+curs, "=== \31 ===")
+        if nOption < #itemList - 4 then
+            printCenter(math.floor(h/2) + curs, "=== \31 ===")
         end
         if nOption > 5 then
-            printCenter(math.floor(h/2)-4, "=== \30 ===")
+            printCenter(math.floor(h/2) - 4, "=== \30 ===")
         end
     end
 end
