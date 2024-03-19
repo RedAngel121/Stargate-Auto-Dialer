@@ -1,4 +1,4 @@
-require("dialer")
+require("sal")
 local w,h = term.getSize()
 local nOption = 1
 
