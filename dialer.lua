@@ -47,9 +47,9 @@ function addNewLocation()
     loadItemList()
     term.clear()
     term.setCursorPos(1,1)
-    io.write("Enter Gate Name: ")
+    io.write("Enter Gate Name:\n")
     local newLocName = io.read()
-    io.write("Enter Gate Address (CSV): ")
+    io.write("Enter Gate Address:\n")
     local newAddressInput = io.read()
     local newAddress = {}
     if newAddressInput ~= "" then
@@ -84,14 +84,14 @@ function editLocationDetails()
     term.clear()
     term.setCursorPos(1,1)
     local selectedLocation = itemList[nOption]
-    print("Current Name: " .. selectedLocation.locName)
-    print("Current Address: {" .. table.concat(selectedLocation.address, ",") .. "}\n")
-    io.write("Enter new Gate Name (Press Enter to keep current):\n")
+    print("\nCurrent Name:\n" .. selectedLocation.locName)
+    print("\nCurrent Address: -" .. table.concat(selectedLocation.address, "-") .. "-\n")
+    io.write("Please Enter new Gate Name\nor Press Enter to keep current:\n")
     local newLocName = io.read()
     if newLocName == "" then
         newLocName = selectedLocation.locName
     end
-    io.write("Enter new Gate Address (CSV / Press Enter to keep current):\n")
+    io.write("\nPlease Enter new Gate Address\nor Press Enter to keep current:\n")
     local newAddressInput = io.read()
     local newAddress = {}
     if newAddressInput ~= "" then
@@ -152,7 +152,7 @@ function dial(address)
             prevSymbol = symbol
         else
             interface.engageSymbol(symbol)
-            -- sleep(0.5)
+            sleep(0.5)
         end
     end
     printCenter(mid - 1, "Dialing Complete")
@@ -216,27 +216,14 @@ function drawFrontEnd()
     end
 end
 
--- Terminal Button for Disconnecting the Active Stargate
-function buttonDCW()
-    paintutils.drawFilledBox(14, 7, 36, 11, colors.white)
-    term.setCursorPos(16, 9)
-    term.setTextColor(colors.black)
-    term.write("Disconnect Wormhole")
-    term.setTextColor(colors.white)
-end
-
 -- Script Actually Starts Here
 while true do
-    term.setBackgroundColor(colors.black)
     loadItemList()
     drawFrontEnd()
     if interface.isStargateConnected() == true then
         term.clear()
-        buttonDCW()
-        local event, button, xPos, yPos = os.pullEvent("mouse_click")
-        if (xPos > 13 and xPos < 37) and (yPos > 6 and yPos < 12) then
-            interface.disconnectStargate()
-        end
+        printCenter(mid, "\187 Disconnect Wormhole \171")
+        if event == "stargate_disconnected" or event == "stargate_reset" then end
     end
     local event, key = os.pullEvent()
     if event == "key" then
@@ -251,6 +238,8 @@ while true do
         elseif key == keys.enter or key == keys.numPadEnter then
             if #itemList < 1 then
                 addNewLocation()
+            elseif interface.isStargateConnected() == true then
+                interface.disconnectStargate()
             elseif editor == true then
                 editLocationDetails()
             elseif editor == false then
