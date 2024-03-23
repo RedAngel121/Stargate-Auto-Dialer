@@ -1,7 +1,10 @@
 local w,h = term.getSize()
+local mid = math.floor(h/2)
 local nOption = 1
 local editor = false
-interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
+local interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
+stargateType = interface.getStargateType()
+term.clear()
 
 -- Function to save the Address List to AddressList.lua
 function saveItemList()
@@ -61,7 +64,6 @@ function addNewLocation()
     end
     table.insert(itemList, {locName = newLocName, address = newAddress})
     saveItemList()
-    drawFrontEnd()
 end
 
 -- Function to remove an item from the Address List
@@ -74,7 +76,6 @@ function removeItem(index)
     if nOption >= #itemList then
         nOption = #itemList
     end
-    drawFrontEnd()
 end
 
 -- Function to edit an existing item on the Address List
@@ -85,12 +86,12 @@ function editLocationDetails()
     local selectedLocation = itemList[nOption]
     print("Current Name: " .. selectedLocation.locName)
     print("Current Address: {" .. table.concat(selectedLocation.address, ",") .. "}\n")
-    io.write("Enter new Gate Name (Press Enter to keep current): ")
+    io.write("Enter new Gate Name (Press Enter to keep current):\n")
     local newLocName = io.read()
     if newLocName == "" then
         newLocName = selectedLocation.locName
     end
-    io.write("Enter new Gate Address (CSV / Press Enter to keep current): ")
+    io.write("Enter new Gate Address (CSV / Press Enter to keep current):\n")
     local newAddressInput = io.read()
     local newAddress = {}
     if newAddressInput ~= "" then
@@ -106,55 +107,55 @@ function editLocationDetails()
     itemList[nOption].locName = newLocName
     itemList[nOption].address = newAddress
     saveItemList()
-    drawFrontEnd()
 end
 
 -- Function to move an item up in the Address List
 function moveItemUp(index)
     loadItemList()
     if index > 1 then
-        -- Swap the item with the one above it
         itemList[index], itemList[index - 1] = itemList[index - 1], itemList[index]
         saveItemList()
         nOption = nOption - 1
     end
-    drawFrontEnd()
 end
 
 -- Function to move an item down in the Address List
 function moveItemDown(index)
     loadItemList()
     if index < #itemList then
-        -- Swap the item with the one below it
         itemList[index], itemList[index + 1] = itemList[index + 1], itemList[index]
         saveItemList()
         nOption = nOption + 1
     end
-    drawFrontEnd()
 end
 
 -- Function to Dial the Milky-Way Stargate
 function dial(address)
-    printCenter(math.floor(h/2)-2, "Dialing Stargate Address")
-    printCenter(math.floor(h/2)-1, "Please Wait...")
+    printCenter(mid - 2, "Dialing Stargate Address")
+    printCenter(mid - 1, "Please Wait...")
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
     for chevron = start,#address.address,1 do
         local symbol = address.address[chevron]
-        if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
-            interface.rotateClockwise(symbol)
+        if stargateType == "sgjourney:milky_way_stargate" then
+            if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
+                interface.rotateClockwise(symbol)
+            else
+                interface.rotateAntiClockwise(symbol)
+            end
+            while(not interface.isCurrentSymbol(symbol)) do sleep(0) end
+            sleep(0.3)
+            interface.openChevron()
+            sleep(0.5)
+            interface.closeChevron()
+            sleep(0.5)
+            prevSymbol = symbol
         else
-            interface.rotateAntiClockwise(symbol)
+            interface.engageSymbol(symbol)
+            sleep(0.5)
         end
-        while(not interface.isCurrentSymbol(symbol)) do sleep(0) end
-        sleep(0.3)
-        interface.openChevron()
-        sleep(0.5)
-        interface.closeChevron()
-        sleep(0.5)
-        prevSymbol = symbol
     end
-    printCenter(math.floor(h/2)-1, "Dialing Complete")
+    printCenter(mid - 1, "Dialing Complete")
     sleep(3)
     os.reboot()
 end
@@ -173,25 +174,24 @@ function drawFrontEnd()
     term.clear()
     if editor == false then
         term.setTextColor(colors.green)
-        printCenter(math.floor(h/2)-7, "\24 or \25 to Select a Destination")
-        printCenter(math.floor(h/2)-6, "[Enter] to start Dialing")
-        printCenter(math.floor(h/2)+9, "Move \27 or \26 to enter EDIT MODE")
+        printCenter(mid - 7, "\24 or \25 to Select a Destination")
+        printCenter(mid - 6, "[Enter] to start Dialing")
+        printCenter(mid + 9, "Move \27 or \26 to enter EDIT MODE")
     elseif editor == true then
         term.setTextColor(colors.orange)
-        printCenter(math.floor(h/2) - 7, "[Enter] to Edit Selected Destination")
-        printCenter(math.floor(h/2) - 6, "[Insert] to Add or [Delete] to Remove")
-        printCenter(math.floor(h/2) + 8, "Use [PageUp] or [PageDown] to Move Items")
-        printCenter(math.floor(h/2) + 9, "Move \27 or \26 to enter DIAL MODE")
+        printCenter(mid - 7, "[Enter] to Edit Selected Destination")
+        printCenter(mid - 6, "[Insert] to Add or [Delete] to Remove")
+        printCenter(mid + 8, "Use [PageUp] or [PageDown] to Move Items")
+        printCenter(mid + 9, "Move \27 or \26 to enter DIAL MODE")
     end
     term.setTextColor(colors.white)
     local function drawOption(index)
-        return ((nOption == index) and "\16 " .. itemList[index].locName .. " \17") or itemList[index].locName
+        return ((nOption == index) and "\187 " .. itemList[index].locName .. " \171") or itemList[index].locName
     end
-    
     local curs = -3
     if #itemList < 10 then
         for i, t in ipairs(itemList) do
-            printCenter(math.floor(h/2) + curs, drawOption(i))
+            printCenter(mid + curs, drawOption(i))
             curs = curs + 1
         end
     else
@@ -203,46 +203,59 @@ function drawFrontEnd()
         else
             start, stop = #itemList - 8, #itemList
         end
-        
         for i = start, stop do
-            printCenter(math.floor(h/2) + curs, drawOption(i))
+            printCenter(mid + curs, drawOption(i))
             curs = curs + 1
         end
-        
         if nOption < #itemList - 4 then
-            printCenter(math.floor(h/2) + curs, "\131\131\131 \25 \131\131\131")
+            printCenter(mid + curs, "\131\131\131 \25 \131\131\131")
         end
         if nOption > 5 then
-            printCenter(math.floor(h/2) - 4, "\140\140\140 \24 \140\140\140")
+            printCenter(mid - 4, "\140\140\140 \24 \140\140\140")
         end
     end
 end
 
-term.clear()
-drawFrontEnd()
+-- Terminal Button for Disconnecting the Active Stargate
+function buttonDCW()
+    paintutils.drawFilledBox(14, 7, 36, 11, colors.white)
+    term.setCursorPos(16, 9)
+    term.setTextColor(colors.black)
+    term.write("Disconnect Wormhole")
+    term.setTextColor(colors.white)
+end
 
+-- Script Actually Starts Here
 while true do
+    term.setBackgroundColor(colors.black)
+    loadItemList()
+    drawFrontEnd()
+    if interface.isStargateConnected() == true then
+        term.clear()
+        buttonDCW()
+        local event, button, xPos, yPos = os.pullEvent("mouse_click")
+        if (xPos > 13 and xPos < 37) and (yPos > 6 and yPos < 12) then
+            interface.disconnectStargate()
+        end
+    end
     local event, key = os.pullEvent()
     if event == "key" then
-        loadItemList()
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
                 nOption = nOption - 1
-                drawFrontEnd()
             end
         elseif key == keys.down or key == keys.s or key == keys.numPad2 then
             if nOption < #itemList then
                 nOption = nOption + 1
-                drawFrontEnd()
             end
         elseif key == keys.enter or key == keys.numPadEnter then
-            if editor == true then
+            if #itemList < 1 then
+                addNewLocation()
+            elseif editor == true then
                 editLocationDetails()
             elseif editor == false then
                 term.clear()
-                loadItemList()
                 dial(itemList[nOption])
-                break
             end
         elseif key == keys.insert then
             addNewLocation()
@@ -250,32 +263,27 @@ while true do
             removeItem(nOption)
         elseif key == keys.d or key == keys.right or key == keys.numPad4 then
             editorMode()
-            drawFrontEnd()
         elseif key == keys.a or key == keys.left or key == keys.numPad6 then
             editorMode()
-            drawFrontEnd()
         elseif key == keys.pageUp then
             moveItemUp(nOption)
         elseif key == keys.pageDown then
             moveItemDown(nOption)
         elseif key == keys.home then
             nOption = 1
-            drawFrontEnd()
         elseif key == keys['end'] then
             nOption = #itemList
-            drawFrontEnd()
         end
     elseif event == "mouse_scroll" then
-        loadItemList()
-        if key == -1 then -- Scroll up
+        if key == -1 then 
+            -- Scroll up
             if nOption > 1 then
                 nOption = nOption - 1
-                drawFrontEnd()
             end
-        elseif key == 1 then -- Scroll down
+        elseif key == 1 then 
+            -- Scroll down
             if nOption < #itemList then
                 nOption = nOption + 1
-                drawFrontEnd()
             end
         end
     end
