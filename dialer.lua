@@ -152,7 +152,7 @@ function dial(address)
             prevSymbol = symbol
         else
             interface.engageSymbol(symbol)
-            sleep(0.5)
+            -- sleep(0.5)
         end
     end
     printCenter(mid - 1, "Dialing Complete")
@@ -257,17 +257,17 @@ while true do
                 term.clear()
                 dial(itemList[nOption])
             end
-        elseif key == keys.insert then
+        elseif key == keys.insert and editor == true then
             addNewLocation()
-        elseif key == keys.delete then
+        elseif key == keys.delete and editor == true then
             removeItem(nOption)
         elseif key == keys.d or key == keys.right or key == keys.numPad4 then
             editorMode()
         elseif key == keys.a or key == keys.left or key == keys.numPad6 then
             editorMode()
-        elseif key == keys.pageUp then
+        elseif key == keys.pageUp and editor == true then
             moveItemUp(nOption)
-        elseif key == keys.pageDown then
+        elseif key == keys.pageDown and editor == true then
             moveItemDown(nOption)
         elseif key == keys.home then
             nOption = 1
