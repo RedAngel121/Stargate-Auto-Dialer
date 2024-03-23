@@ -12,8 +12,8 @@ if interface == nil then
     term.setTextColor(colors.red)
     print("INTERFACE NOT FOUND")
     term.setTextColor(colors.white)
-    print("\nPlease Check your Modem's Connection\n\nComputer will automatically reboot in 5 seconds...")
-    sleep(5)
+    print("\nPlease Check your Modem's Connection\n\nThe wired modem connected to this terminal and the wired modem connected to the interface both need to be Turned On. Make sure there is a red outline around the wire on both modems.\n\nComputer will automatically reboot...")
+    sleep(3)
     os.reboot()
 elseif peripheral.find("basic_interface") then
     iType = "basic"
@@ -30,8 +30,8 @@ if interface.getStargateType == nil then
     term.setTextColor(colors.red)
     print("STARGATE NOT FOUND")
     term.setTextColor(colors.white)
-    print("\nPlease Check your Interface's Orientation\n\nComputer will automatically reboot in 5 seconds...")
-    sleep(5)
+    print("\nPlease Check your Interface's Orientation\n\nThe Interface block has one side with a large black box/hole. Make sure that black side is facing AWAY from the gate.\n\nComputer will automatically reboot...")
+    sleep(3)
     os.reboot()
 elseif interface.getStargateType() ~= "sgjourney:milky_way_stargate" and iType == "basic" then
     term.clear()
@@ -39,8 +39,8 @@ elseif interface.getStargateType() ~= "sgjourney:milky_way_stargate" and iType =
     term.setTextColor(colors.red)
     print("INCORRECT INTERFACE")
     term.setTextColor(colors.white)
-    print("\nPlease upgrade to the Crystal Interface to begin dialing this gate\n\nComputer will automatically reboot in 5 seconds...")
-    sleep(5)
+    print("\nPlease upgrade to the Crystal Interface to begin dialing this gate\n\nBasic Interfaces can only be used with the Milky-Way Stargate and are incompatable with Classic, Pegasus, Tollan, and Universe.\n\nComputer will automatically reboot...")
+    sleep(3)
     os.reboot()
 end
 
