@@ -294,8 +294,10 @@ while true do
             end
         end
     elseif monitor ~= nil and event == "monitor_touch" then
+        if (y < 1000) and interface.isStargateConnected() == true then
+            interface.disconnectStargate()
         -- Top Third of the Monitor
-        if ((y < mh/3) and (x < mw/3)) and editor == true then
+        elseif ((y < mh/3) and (x < mw/3)) and editor == true then
             -- addNewLocation()
         elseif ((y < mh/3) and (x > mw/3) and (x < (mw/3)*2) ) then
             if nOption > 1 then
@@ -310,14 +312,12 @@ while true do
         -- Middle Third of the Monitor
         elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x < mw/3) or (x > (mw/3)*2)) then
             editorMode()
-        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) and editor == false then
-            if interface.isStargateConnected() == true then
-                interface.disconnectStargate()
+        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) then
+            if editor == true then
+                -- editLocationDetails()
             else
                 dial(itemList[nOption])
             end
-        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) and editor == true then
-            -- editLocationDetails()
         -- Bottom Third of the Monitor
         elseif ((y > (mh/3)*2) and (x < mw/3)) and editor == true then
             removeItem(nOption)
