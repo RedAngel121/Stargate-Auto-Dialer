@@ -1,10 +1,8 @@
-local w,h = term.getSize()
-local mid = math.floor(h/2)
+local monitor = peripheral.find("monitor")
 local nOption = 1
 local editor = false
 local interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
 stargateType = interface.getStargateType()
-term.clear()
 
 -- Function to save the Address List to AddressList.lua
 function saveItemList()
@@ -47,9 +45,9 @@ function addNewLocation()
     loadItemList()
     term.clear()
     term.setCursorPos(1,1)
-    io.write("Enter Gate Name:\n")
+    io.write("Enter Gate Name: ")
     local newLocName = io.read()
-    io.write("Enter Gate Address:\n")
+    io.write("Enter Gate Address: ")
     local newAddressInput = io.read()
     local newAddress = {}
     if newAddressInput ~= "" then
@@ -131,11 +129,13 @@ end
 
 -- Function to Dial the Milky-Way Stargate
 function dial(address)
-    printCenter(mid - 2, "Dialing Stargate Address")
-    printCenter(mid - 1, "Please Wait...")
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
     for chevron = start,#address.address,1 do
+        drawFrontEnd(term, th, tw)
+        if monitor ~= nil then
+            drawFrontEnd(monitor, mh, mw)
+        end
         local symbol = address.address[chevron]
         if stargateType == "sgjourney:milky_way_stargate" then
             if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
@@ -155,77 +155,98 @@ function dial(address)
             sleep(0.5)
         end
     end
-    printCenter(mid - 1, "Dialing Complete")
-    sleep(3)
-    os.reboot()
 end
 
--- Function to set the cursor the the center of the screen and print on the line
-function printCenter(y,s)
-    local x = math.floor((w - string.len(s))/2)
-    term.setCursorPos(x,y)
-    term.clearLine()
-    term.write(s)
+-- Function to set the cursor the the center of the screen and print the line
+function printCenter(display, y, s)
+    local x,z = display.getSize()
+    local x = math.floor((x - string.len(s))/2)
+    display.setCursorPos(x,y)
+    display.clearLine()
+    display.write(s)
 end
 
--- Function to draw the Main Menu
-function drawFrontEnd()
-    loadItemList()
-    term.clear()
-    if editor == false then
-        term.setTextColor(colors.green)
-        printCenter(mid - 7, "\24 or \25 to Select a Destination")
-        printCenter(mid - 6, "[Enter] to start Dialing")
-        printCenter(mid + 9, "Move \27 or \26 to enter EDIT MODE")
-    elseif editor == true then
-        term.setTextColor(colors.orange)
-        printCenter(mid - 7, "[Enter] to Edit Selected Destination")
-        printCenter(mid - 6, "[Insert] to Add or [Delete] to Remove")
-        printCenter(mid + 8, "Use [PageUp] or [PageDown] to Move Items")
-        printCenter(mid + 9, "Move \27 or \26 to enter DIAL MODE")
-    end
-    term.setTextColor(colors.white)
+-- Function to draw the scrollable address list on screen
+function drawBackEnd(display, h, w)
+    display.setTextColor(colors.white)
     local function drawOption(index)
         return ((nOption == index) and "\187 " .. itemList[index].locName .. " \171") or itemList[index].locName
     end
-    local curs = -3
-    if #itemList < 10 then
+    local curs = 6
+    if #itemList < (h-10)+1 then
         for i, t in ipairs(itemList) do
-            printCenter(mid + curs, drawOption(i))
+            printCenter(display, curs, drawOption(i))
             curs = curs + 1
         end
     else
         local start, stop
-        if nOption < 6 then
-            start, stop = 1, 9
-        elseif nOption > 5 and nOption < #itemList - 4 then
-            start, stop = nOption - 4, nOption + 4
+        if nOption < (math.floor((h-10)/2))+2 then
+            start, stop = 1, (h-10)
+        elseif nOption > (math.floor(h-10)/2)+1 and nOption < #itemList - (math.floor((h-10)/2)) then
+            start, stop = nOption - (math.floor((h-10)/2)), nOption + (math.floor((h-10)/2))
         else
-            start, stop = #itemList - 8, #itemList
+            start, stop = #itemList - ((h-10)-1), #itemList
         end
         for i = start, stop do
-            printCenter(mid + curs, drawOption(i))
+            printCenter(display, curs, drawOption(i))
             curs = curs + 1
         end
-        if nOption < #itemList - 4 then
-            printCenter(mid + curs, "\131\131\131 \25 \131\131\131")
+        if nOption < #itemList - math.floor((h-10)/2) then
+            printCenter(display, h-4, "\131\131\131 \25 \131\131\131")
         end
-        if nOption > 5 then
-            printCenter(mid - 4, "\140\140\140 \24 \140\140\140")
+        if nOption > math.floor((h-10)/2)+1 then
+            printCenter(display, 5, "\140\140\140 \24 \140\140\140")
         end
     end
+end
+
+-- Function to draw the Main Menu
+function drawFrontEnd(display, h, w)
+    loadItemList()
+    display.clear()
+    if interface.getChevronsEngaged() > 0 and interface.isStargateConnected() == false then
+        printCenter(display, h/2, "Dialing Stargate Address")
+        printCenter(display, h/2+1, "Please Wait...")
+    elseif interface.isStargateConnected() == true then
+        printCenter(display, h/2, "\187 Disconnect Wormhole \171")
+        if event == "stargate_disconnected" or event == "stargate_reset" then end
+    elseif editor == false then
+        display.setTextColor(colors.green)
+        printCenter(display, 2, "\24 or \25 to Select a Destination")
+        printCenter(display, 3, "[Enter] to start Dialing")
+        printCenter(display, h-1, "Move \27 or \26 to enter EDIT MODE")
+        drawBackEnd(display, h, w)
+    elseif editor == true then
+        display.setTextColor(colors.orange)
+        printCenter(display, 2, "[Enter] to Edit Selected Destination")
+        printCenter(display, 3, "[Insert] to Add or [Delete] to Remove")
+        printCenter(display, h-2, "Use [PageUp] or [PageDown] to Move Items")
+        printCenter(display, h-1, "Move \27 or \26 to enter DIAL MODE")
+        drawBackEnd(display, h, w)
+    end
+end
+
+-- Function to display on the terminal
+function terminalSetup()
+    tw,th = term.getSize()
+    drawFrontEnd(term,th,tw)
+end
+
+-- Function to display on the monitor
+function monitorSetup()
+    monitor.setTextScale(.5)
+    mw,mh = monitor.getSize()
+    drawFrontEnd(monitor,mh,mw)
 end
 
 -- Script Actually Starts Here
 while true do
     loadItemList()
-    drawFrontEnd()
-    if interface.isStargateConnected() == true then
-        term.clear()
-        printCenter(mid, "\187 Disconnect Wormhole \171")
-        if event == "stargate_disconnected" or event == "stargate_reset" then end
+    terminalSetup()
+    if monitor ~= nil then
+        monitorSetup()
     end
-    local event, key = os.pullEvent()
+    local event, key, x, y = os.pullEvent()
     if event == "key" then
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
@@ -243,7 +264,6 @@ while true do
             elseif editor == true then
                 editLocationDetails()
             elseif editor == false then
-                term.clear()
                 dial(itemList[nOption])
             end
         elseif key == keys.insert and editor == true then
@@ -264,16 +284,36 @@ while true do
             nOption = #itemList
         end
     elseif event == "mouse_scroll" then
-        if key == -1 then 
-            -- Scroll up
+        if key == -1 then
             if nOption > 1 then
                 nOption = nOption - 1
             end
-        elseif key == 1 then 
-            -- Scroll down
+        elseif key == 1 then
             if nOption < #itemList then
                 nOption = nOption + 1
             end
+        end
+    elseif monitor ~= nil and event == "monitor_touch" then
+        if (y < mh/3 and editor == false) or (y < mh/3 and (x > mw/3) and (x < (mw/3)*2) and editor == true) then
+            if nOption > 1 then
+                nOption = nOption - 1
+            end
+        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) and editor == false then
+            if interface.isStargateConnected() == true then
+                interface.disconnectStargate()
+            else
+                dial(itemList[nOption])
+            end
+        elseif (y > (mh/3)*2 and editor == false) or (y > (mh/3)*2 and (x > mw/3) and (x < (mw/3)*2) and editor == true) then
+            if nOption < #itemList then
+                nOption = nOption + 1
+            end
+        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x < mw/3) or (x > (mw/3)*2)) then
+            editorMode()
+        elseif (y < mh/3 and x > (mw/3)*2) and editor == true then
+            moveItemUp(nOption)
+        elseif (y > (mh/3)*2 and x > (mw/3)*2) and editor == true then
+            moveItemDown(nOption)
         end
     end
 end
