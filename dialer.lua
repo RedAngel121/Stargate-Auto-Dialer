@@ -139,6 +139,7 @@ function dial(address)
         local symbol = address.address[chevron]
         if stargateType == "sgjourney:milky_way_stargate" then
             if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
+            -- if chevron % 2 == 0 then
                 interface.rotateClockwise(symbol)
             else
                 interface.rotateAntiClockwise(symbol)
@@ -294,26 +295,43 @@ while true do
             end
         end
     elseif monitor ~= nil and event == "monitor_touch" then
-        if (y < mh/3 and editor == false) or (y < mh/3 and (x > mw/3) and (x < (mw/3)*2) and editor == true) then
+        if (y < 1000) and interface.isStargateConnected() == true then
+            interface.disconnectStargate()
+        -- Top Third of the Monitor
+        elseif ((y < mh/3) and (x < mw/3)) and editor == true then
+            -- addNewLocation()
+        elseif ((y < mh/3) and (x > mw/3) and (x < (mw/3)*2) ) then
             if nOption > 1 then
                 nOption = nOption - 1
             end
-        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) and editor == false then
-            if interface.isStargateConnected() == true then
-                interface.disconnectStargate()
+        elseif ((y < mh/3) and (x > (mw/3)*2)) then
+            if editor == true then 
+                moveItemUp(nOption)
+            else
+                nOption = 1
+            end
+        -- Middle Third of the Monitor
+        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x < mw/3) or (x > (mw/3)*2)) then
+            editorMode()
+        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x > mw/3) and (x < (mw/3)*2)) then
+            if editor == true then
+                -- editLocationDetails()
             else
                 dial(itemList[nOption])
             end
-        elseif (y > (mh/3)*2 and editor == false) or (y > (mh/3)*2 and (x > mw/3) and (x < (mw/3)*2) and editor == true) then
+        -- Bottom Third of the Monitor
+        elseif ((y > (mh/3)*2) and (x < mw/3)) and editor == true then
+            removeItem(nOption)
+        elseif ((y > (mh/3)*2) and (x > mw/3) and (x < (mw/3)*2)) then
             if nOption < #itemList then
                 nOption = nOption + 1
             end
-        elseif ((y > mh/3) and (y < (mh/3)*2)) and ((x < mw/3) or (x > (mw/3)*2)) then
-            editorMode()
-        elseif (y < mh/3 and x > (mw/3)*2) and editor == true then
-            moveItemUp(nOption)
-        elseif (y > (mh/3)*2 and x > (mw/3)*2) and editor == true then
-            moveItemDown(nOption)
+        elseif ((y > (mh/3)*2) and (x > (mw/3)*2)) then
+            if editor == true then
+                moveItemDown(nOption)
+            else
+                nOption = #itemList
+            end
         end
     end
 end
