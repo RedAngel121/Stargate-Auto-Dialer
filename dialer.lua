@@ -294,6 +294,16 @@ while true do
                 nOption = nOption + 1
             end
         end
+    elseif event == "mouse_click" then
+        if #itemList < 1 then
+            addNewLocation()
+        elseif interface.isStargateConnected() == true then
+            interface.disconnectStargate()
+        elseif editor == true then
+            editLocationDetails()
+        elseif editor == false then
+            dial(itemList[nOption])
+        end
     elseif monitor ~= nil and event == "monitor_touch" then
         if (y < 1000) and interface.isStargateConnected() == true then
             interface.disconnectStargate()
