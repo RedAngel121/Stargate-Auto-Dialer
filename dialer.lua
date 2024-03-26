@@ -161,7 +161,7 @@ end
 -- Function to set the cursor the the center of the screen and print the line
 function printCenter(display, y, s)
     local x,z = display.getSize()
-    local x = math.floor((x - string.len(s))/2)
+    local x = math.floor((x - string.len(s))/2)+1
     display.setCursorPos(x,y)
     display.clearLine()
     display.write(s)
