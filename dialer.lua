@@ -41,6 +41,7 @@ end
 
 -- Function to add a new item to the Address List
 function addNewLocation()
+    term.setTextColor(colors.white)
     os.sleep(0.1)
     loadItemList()
     term.clear()
@@ -78,6 +79,7 @@ end
 
 -- Function to edit an existing item on the Address List
 function editLocationDetails()
+    term.setTextColor(colors.white)
     loadItemList()
     term.clear()
     term.setCursorPos(1,1)
@@ -129,7 +131,7 @@ end
 
 -- Function to Dial the Milky-Way Stargate
 function dial(address)
-    gate_is_dialing = true
+    gateIsDialing = true
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
     for chevron = start,#address.address,1 do
@@ -157,14 +159,14 @@ function dial(address)
             sleep(0.5)
         end
     end
-    gate_is_dialing = false
+    gateIsDialing = false
 end
 
 -- Function to set the cursor the the center of the screen and print the line
 function printCenter(display, y, s)
-    local x,z = display.getSize()
-    local x = math.floor((x - string.len(s))/2)+1
-    display.setCursorPos(x,y)
+    local w,h = display.getSize()
+    local w = ((w - string.len(s))/2)+1
+    display.setCursorPos(w,y)
     display.clearLine()
     display.write(s)
 end
@@ -208,24 +210,74 @@ function drawFrontEnd(display, h, w)
     loadItemList()
     display.clear()
     if interface.isStargateConnected() == true then
+        display.setTextColor(colors.red)
         printCenter(display, h/2, "\187 Disconnect Wormhole \171")
         if event == "stargate_disconnected" or event == "stargate_reset" then end
-    elseif gate_is_dialing == true then
+    elseif gateIsDialing == true then
+        display.setTextColor(colors.yellow)
         printCenter(display, h/2, "Dialing Stargate Address")
         printCenter(display, h/2+1, "Please Wait...")
     elseif editor == false then
-        display.setTextColor(colors.green)
-        printCenter(display, 2, "\24 or \25 to Select a Destination")
-        printCenter(display, 3, "[Enter] to start Dialing")
-        printCenter(display, h-1, "Move \27 or \26 to enter EDIT MODE")
+        term.setTextColor(colors.green)
+        printCenter(term, 2, "\24 or \25 to Select a Destination")
+        printCenter(term, 3, "[Enter] to start Dialing")
+        printCenter(term, h-1, "Move \27 or \26 to enter EDIT MODE")
         drawBackEnd(display, h, w)
+        if monitor ~= nil then
+            monitor.setTextColor(colors.green)
+            -- TOP
+            monitor.setCursorPos(3,3)
+            monitor.write("[DIAL]")
+            monitor.setCursorPos(w/2-4,3)
+            monitor.write("[SCROLL UP]")
+            monitor.setCursorPos(w-7,3)
+            monitor.write("[HOME]")
+            -- MID
+            monitor.setCursorPos(3,h/2+1)
+            monitor.write("\27EDIT\27")
+            monitor.setCursorPos(w/2-2,h/2+1)
+            monitor.write("")
+            monitor.setCursorPos(w-7,h/2+1)
+            monitor.write("\26EDIT\26")
+            -- BOT
+            monitor.setCursorPos(3,h-2)
+            monitor.write("")
+            monitor.setCursorPos(w/2-5,h-2)
+            monitor.write("[SCROLL DOWN]")
+            monitor.setCursorPos(w-7,h-2)
+            monitor.write("[END]")
+        end
     elseif editor == true then
-        display.setTextColor(colors.orange)
-        printCenter(display, 2, "[Enter] to Edit Selected Destination")
-        printCenter(display, 3, "[Insert] to Add or [Delete] to Remove")
-        printCenter(display, h-2, "Use [PageUp] or [PageDown] to Move Items")
-        printCenter(display, h-1, "Move \27 or \26 to enter DIAL MODE")
+        term.setTextColor(colors.orange)
+        printCenter(term, 2, "[Enter] to Edit Selected Destination")
+        printCenter(term, 3, "[Insert] to Add or [Delete] to Remove")
+        printCenter(term, h-2, "Use [PageUp] or [PageDown] to Move Items")
+        printCenter(term, h-1, "Move \27 or \26 to enter DIAL MODE")
         drawBackEnd(display, h, w)
+        if monitor ~= nil then
+            monitor.setTextColor(colors.orange)
+            -- TOP
+            monitor.setCursorPos(3,3)
+            monitor.write("")
+            monitor.setCursorPos(w/2-4,3)
+            monitor.write("[SCROLL UP]")
+            monitor.setCursorPos(w-7,3)
+            monitor.write("[PGUP]")
+            -- MID
+            monitor.setCursorPos(3,h/2+1)
+            monitor.write("\27DIAL\27")
+            monitor.setCursorPos(w/2-2,h/2+1)
+            monitor.write("")
+            monitor.setCursorPos(w-7,h/2+1)
+            monitor.write("\26DIAL\26")
+            -- BOT
+            monitor.setCursorPos(3,h-2)
+            monitor.write("")
+            monitor.setCursorPos(w/2-5,h-2)
+            monitor.write("[SCROLL DOWN]")
+            monitor.setCursorPos(w-7,h-2)
+            monitor.write("[PGDN]")
+        end
     end
 end
 
@@ -250,7 +302,7 @@ while true do
         monitorSetup()
     end
     local event, key, x, y = os.pullEvent()
-    if event == "key" and gate_is_dialing ~= true then
+    if event == "key" and gateIsDialing ~= true then
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
                 nOption = nOption - 1
@@ -286,7 +338,7 @@ while true do
         elseif key == keys['end'] then
             nOption = #itemList
         end
-    elseif event == "mouse_scroll" and gate_is_dialing ~= true then
+    elseif event == "mouse_scroll" and gateIsDialing ~= true then
         if key == -1 then
             if nOption > 1 then
                 nOption = nOption - 1
@@ -296,7 +348,7 @@ while true do
                 nOption = nOption + 1
             end
         end
-    elseif event == "mouse_click" and gate_is_dialing ~= true then
+    elseif event == "mouse_click" and gateIsDialing ~= true then
         if #itemList < 1 then
             addNewLocation()
         elseif interface.isStargateConnected() == true then
@@ -306,12 +358,16 @@ while true do
         elseif editor == false then
             dial(itemList[nOption])
         end
-    elseif monitor ~= nil and event == "monitor_touch" and gate_is_dialing ~= true then
+    elseif monitor ~= nil and event == "monitor_touch" and gateIsDialing ~= true then
         if (y < 1000) and interface.isStargateConnected() == true then
             interface.disconnectStargate()
         -- Top Third of the Monitor
-        elseif ((y < mh/3) and (x < mw/3)) and editor == true then
-            -- addNewLocation()
+        elseif ((y < mh/3) and (x < mw/3)) then
+            if editor == true then
+                -- addNewLocation()
+            else
+                dial(itemList[nOption])
+            end
         elseif ((y < mh/3) and (x > mw/3) and (x < (mw/3)*2) ) then
             if nOption > 1 then
                 nOption = nOption - 1
@@ -329,7 +385,7 @@ while true do
             if editor == true then
                 -- editLocationDetails()
             else
-                dial(itemList[nOption])
+                -- dial(itemList[nOption])
             end
         -- Bottom Third of the Monitor
         elseif ((y > (mh/3)*2) and (x < mw/3)) and editor == true then
