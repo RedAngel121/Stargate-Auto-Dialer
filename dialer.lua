@@ -129,6 +129,7 @@ end
 
 -- Function to Dial the Milky-Way Stargate
 function dial(address)
+    gate_is_dialing = true
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
     for chevron = start,#address.address,1 do
@@ -156,6 +157,7 @@ function dial(address)
             sleep(0.5)
         end
     end
+    gate_is_dialing = false
 end
 
 -- Function to set the cursor the the center of the screen and print the line
@@ -205,12 +207,12 @@ end
 function drawFrontEnd(display, h, w)
     loadItemList()
     display.clear()
-    if interface.getChevronsEngaged() > 0 and interface.isStargateConnected() == false then
-        printCenter(display, h/2, "Dialing Stargate Address")
-        printCenter(display, h/2+1, "Please Wait...")
-    elseif interface.isStargateConnected() == true then
+    if interface.isStargateConnected() == true then
         printCenter(display, h/2, "\187 Disconnect Wormhole \171")
         if event == "stargate_disconnected" or event == "stargate_reset" then end
+    elseif gate_is_dialing == true then
+        printCenter(display, h/2, "Dialing Stargate Address")
+        printCenter(display, h/2+1, "Please Wait...")
     elseif editor == false then
         display.setTextColor(colors.green)
         printCenter(display, 2, "\24 or \25 to Select a Destination")
@@ -248,7 +250,7 @@ while true do
         monitorSetup()
     end
     local event, key, x, y = os.pullEvent()
-    if event == "key" then
+    if event == "key" and gate_is_dialing ~= true then
         if key == keys.up or key == keys.w or key == keys.numPad8 then
             if nOption > 1 then
                 nOption = nOption - 1
@@ -284,7 +286,7 @@ while true do
         elseif key == keys['end'] then
             nOption = #itemList
         end
-    elseif event == "mouse_scroll" then
+    elseif event == "mouse_scroll" and gate_is_dialing ~= true then
         if key == -1 then
             if nOption > 1 then
                 nOption = nOption - 1
@@ -294,7 +296,7 @@ while true do
                 nOption = nOption + 1
             end
         end
-    elseif event == "mouse_click" then
+    elseif event == "mouse_click" and gate_is_dialing ~= true then
         if #itemList < 1 then
             addNewLocation()
         elseif interface.isStargateConnected() == true then
@@ -304,7 +306,7 @@ while true do
         elseif editor == false then
             dial(itemList[nOption])
         end
-    elseif monitor ~= nil and event == "monitor_touch" then
+    elseif monitor ~= nil and event == "monitor_touch" and gate_is_dialing ~= true then
         if (y < 1000) and interface.isStargateConnected() == true then
             interface.disconnectStargate()
         -- Top Third of the Monitor
