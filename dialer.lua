@@ -213,7 +213,7 @@ function drawFrontEnd(display, h, w)
         display.setTextColor(colors.red)
         printCenter(display, h/2, "\187 Disconnect Wormhole \171")
         if event == "stargate_disconnected" or event == "stargate_reset" then end
-    elseif gateIsDialing == true then
+    elseif gateIsDialing == true or interface.getChevronsEngaged() > 0 then
         display.setTextColor(colors.yellow)
         printCenter(display, h/2, "Dialing Stargate Address")
         printCenter(display, h/2+1, "Please Wait...")
