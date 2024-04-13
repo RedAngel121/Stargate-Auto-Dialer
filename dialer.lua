@@ -42,7 +42,7 @@ end
 -- Function to add a new item to the Address List
 function addNewLocation()
     term.setTextColor(colors.white)
-    os.sleep(0.1)
+    sleep(0.1)
     loadItemList()
     term.clear()
     term.setCursorPos(1,1)
@@ -301,6 +301,7 @@ while true do
     if monitor ~= nil then
         monitorSetup()
     end
+    sleep(0.1)
     local event, key, x, y = os.pullEvent()
     if event == "key" and gateIsDialing ~= true then
         if key == keys.up or key == keys.w or key == keys.numPad8 then
