@@ -374,7 +374,7 @@ while true do
                 nOption = nOption - 1
             end
         elseif ((y < mh/3) and (x > (mw/3)*2)) then
-            if editor == true then 
+            if editor == true then
                 moveItemUp(nOption)
             else
                 nOption = 1
