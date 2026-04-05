@@ -129,7 +129,7 @@ function moveItemDown(index)
     end
 end
 
--- Function to Dial the Milky-Way Stargate
+-- Function to Dial the Stargate
 function dial(address)
     gateIsDialing = true
     local start = interface.getChevronsEngaged() + 1
