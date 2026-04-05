@@ -149,10 +149,13 @@ function dial(address)
             end
             while(not interface.isCurrentSymbol(symbol)) do sleep(0) end
             sleep(0.3)
-            interface.openChevron()
-            sleep(0.5)
-            interface.encodeChevron()
-            interface.closeChevron()
+            if stargateType == "sgjourney:milky_way_stargate" then
+                interface.openChevron()
+                sleep(0.5)
+                interface.closeChevron()
+            else
+                interface.encodeChevron()
+            end
             sleep(0.5)
             prevSymbol = symbol
         else
