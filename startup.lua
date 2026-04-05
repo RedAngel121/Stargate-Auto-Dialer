@@ -33,13 +33,22 @@ if interface.getStargateType == nil then
     print("\nPlease Check your Interface's Orientation\n\nThe Interface block has one side with a large black box/hole. Make sure that black side is facing AWAY from the Stargate.\n\nTerminal will automatically reboot...")
     sleep(3)
     os.reboot()
-elseif interface.getStargateType() ~= "sgjourney:milky_way_stargate" and iType == "basic" then
+elseif interface.getStargateType() == "sgjourney:pegasus_stargate" and iType == "basic" then
     term.clear()
     term.setCursorPos(2, 2)
     term.setTextColor(colors.red)
     print("INCORRECT INTERFACE")
     term.setTextColor(colors.white)
-    print("\nPlease upgrade to the Crystal Interface to begin dialing this Stargate\n\nBasic Interfaces can only be used with the Milky-Way Stargate and are incompatable with Classic, Pegasus, Tollan, and Universe.\n\nTerminal will automatically reboot...")
+    print("\nPlease upgrade to the Crystal Interface to begin dialing this Stargate\n\nBasic Interfaces cannot be used with Pegasus Stargates.\n\nTerminal will automatically reboot...")
+    sleep(3)
+    os.reboot()
+elseif interface.getStargateType() == "sgjourney:tollan_stargate" and iType == "basic" then
+    term.clear()
+    term.setCursorPos(2, 2)
+    term.setTextColor(colors.red)
+    print("INCORRECT INTERFACE")
+    term.setTextColor(colors.white)
+    print("\nPlease upgrade to the Crystal Interface to begin dialing this Stargate\n\nBasic Interfaces cannot be used with Tollan Stargates.\n\nTerminal will automatically reboot...")
     sleep(3)
     os.reboot()
 end
