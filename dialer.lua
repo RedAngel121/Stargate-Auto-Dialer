@@ -129,7 +129,7 @@ function moveItemDown(index)
     end
 end
 
--- Function to Dial the Stargate
+-- Function to Dial the Milky-Way Stargate
 function dial(address)
     gateIsDialing = true
     local start = interface.getChevronsEngaged() + 1
@@ -140,7 +140,10 @@ function dial(address)
             drawFrontEnd(monitor, mh, mw)
         end
         local symbol = address.address[chevron]
-        if stargateType == "sgjourney:milky_way_stargate" or "sgjourney:universe_stargate" or "sgjourney:classic_stargate" then
+        if stargateType ~= "sgjourney:milky_way_stargate" then
+            interface.engageSymbol(symbol)
+            sleep(0.5)
+        else
             if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
             -- if chevron % 2 == 0 then
                 interface.rotateClockwise(symbol)
@@ -149,18 +152,11 @@ function dial(address)
             end
             while(not interface.isCurrentSymbol(symbol)) do sleep(0) end
             sleep(0.3)
-            if stargateType == "sgjourney:milky_way_stargate" then
-                interface.openChevron()
-                sleep(0.5)
-                interface.closeChevron()
-            else
-                interface.encodeChevron()
-            end
+            interface.openChevron()
+            sleep(0.5)
+            interface.closeChevron()
             sleep(0.5)
             prevSymbol = symbol
-        else
-            interface.engageSymbol(symbol)
-            sleep(0.5)
         end
     end
     gateIsDialing = false
