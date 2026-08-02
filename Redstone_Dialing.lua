@@ -7,7 +7,6 @@ abydos={1,2,3,4,5,6,7,8,0}
 undergarden={1,2,3,4,5,6,7,8,0}
 
 function dial(address)
-    gateIsDialing = true
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
     for chevron = start,#address.address,1 do
@@ -16,7 +15,9 @@ function dial(address)
             drawFrontEnd(monitor, mh, mw)
         end
         local symbol = address.address[chevron]
-        if stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
+        if peripheral.find("advanced_crystal_interface") then
+            interface.engageSymbol(symbol, true, true)
+        elseif stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
             if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
             -- if chevron % 2 == 0 then
                 interface.rotateClockwise(symbol)
@@ -39,10 +40,11 @@ function dial(address)
             sleep(0.5)
         end
     end
-    if stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
-        interface.engageStargate()
+    if peripheral.find("crystal_interface") or peripheral.find("basic_interface") then
+        if stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
+            interface.engageStargate()
+        end
     end
-    gateIsDialing = false
 end
 
 while true do
