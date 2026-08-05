@@ -2,6 +2,13 @@ local monitor = peripheral.find("monitor")
 local nOption = 1
 local editor = false
 local interface = peripheral.find("basic_interface") or peripheral.find("crystal_interface") or peripheral.find("advanced_crystal_interface")
+if peripheral.find("basic_interface") then
+    iType = "basic"
+elseif peripheral.find("crystal_interface") then
+    iType = "crystal"
+elseif peripheral.find("advanced_crystal_interface") then
+    iType = "advanced"
+end
 stargateType = interface.getStargateType()
 
 -- Function to save the Address List to AddressList.lua
@@ -134,13 +141,13 @@ function dial(address)
     gateIsDialing = true
     local start = interface.getChevronsEngaged() + 1
     local prevSymbol = 0
+    drawFrontEnd(term, th, tw)
+    if monitor ~= nil then
+        drawFrontEnd(monitor, mh, mw)
+    end
     for chevron = start,#address.address,1 do
-        drawFrontEnd(term, th, tw)
-        if monitor ~= nil then
-            drawFrontEnd(monitor, mh, mw)
-        end
         local symbol = address.address[chevron]
-        if peripheral.find("advanced_crystal_interface") then
+        if iType == "advanced" then
             interface.engageSymbol(symbol, true, true)
         elseif stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
             if (prevSymbol > symbol and (prevSymbol - symbol) < 19) or (prevSymbol < symbol and (symbol - prevSymbol) > 19) then
@@ -165,7 +172,7 @@ function dial(address)
             sleep(0.5)
         end
     end
-    if peripheral.find("crystal_interface") or peripheral.find("basic_interface") then
+    if iType ~= "advanced" then
         if stargateType == "sgjourney:milky_way_stargate" or stargateType == "sgjourney:universe_stargate" or stargateType == "sgjourney:classic_stargate" then
             interface.engageStargate()
         end
